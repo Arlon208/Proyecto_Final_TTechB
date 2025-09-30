@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <title>Entre Sabanas textil para tu hogar</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="apple-touch-icon" href="images/apple-icon.png">
+    <link rel="shortcut icon" type="images/x-icon" href="assets/img/favicon.ico">
+
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/templatemo.css">
+    <link rel="stylesheet" href="css/custom.css">
+
+    <!-- Carga los estilos de la letra -->
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;200;300;400;500;700;900&display=swap">
+    <link rel="stylesheet" href="css/fontawesome.min.css">
+
+</head>
+
+<body>
+    <!-- Contenedor para cargar la barra de menú usando JavaScript -->
+    <div id="menu"></div>
+    <!-- Contenido de la página - Inicio -->
+     <!-- monto a pagar -->
+      <div class="text-center mb-4 pt-5">
+  <h4>Total a pagar: <span id="montoTotal" class="text-success fw-bold">$0</span></h4>
+</div>
+<!-- fin monto a pagar -->
+         <!-- Formulario Pago -->
+ <div class="container pb-5">
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        <!-- Card -->
+        <div class="card shadow-lg border-0 rounded-4">
+          <div class="card-header bg-success text-white text-center rounded-top-4">
+            <h3 class="mb-0">Datos para pago</h3>
+          </div>
+          <div class="card-body p-4">
+    <form id="payForm">
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="card" class="form-label">Número de tarjeta</label>
+                <input type="text" class="form-control" id="card" name="card" 
+                       placeholder="XXXX XXXX XXXX XXXX" 
+                       required 
+                       minlength="13" 
+                       maxlength="19" 
+                       pattern="[0-9]{13,19}" 
+                       inputmode="numeric">
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="fechaExp" class="form-label">Fecha expiración (MM/AAAA)</label>
+                <input type="month" class="form-control" id="fechaExp" name="fechaExp" required>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="cvc" class="form-label">CVC / CVV</label>
+            <input type="text" class="form-control" id="cvc" name="cvc" 
+                   placeholder="123" 
+                   required 
+                   maxlength="4" 
+                   pattern="[0-9]{3,4}"
+                   inputmode="numeric">
+        </div>
+
+        <div class="text-end">
+            <button type="submit" id="btnPagar" class="btn btn-success btn-lg px-4 rounded-pill">
+                Pagar
+            </button>
+   
+</div>
+ </form>
+        <!-- /Card -->
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+  <script>
+    document.getElementById("payForm").addEventListener("submit", function(event) {
+        event.preventDefault() // Evita la recarga
+        
+        const btnPagar = document.getElementById("btnPagar");
+        const textoOriginal = btnPagar.textContent;
+        
+        btnPagar.disabled = true;
+        btnPagar.textContent = "Procesando...";
+        
+        // 2. Simula el tiempo que tardaría el servidor
+        setTimeout(() => {
+
+            btnPagar.disabled = false;
+            btnPagar.textContent = textoOriginal;
+
+            // Mensaje de pago exitoso
+            alert("✅ El pago se realizó correctamente.\nPronto se realizará el envío de tus productos.");
+            
+            // Limpia el formulario
+            this.reset();
+            
+        }, 2000);
+    });
+</script>
+
+    <!-- Fin Formulario Pago -->
+
+    <!-- Contenido de la página - Final -->
+    <!-- Contenedor para cargar el pie de página usando JavaScript -->
+    <div id="pie"></div>
+
+    <!-- Inicio de los Script -->
+    <script src="js/jquery-1.11.0.min.js"></script>
+    <script src="js/jquery-migrate-1.2.1.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/templatemo.js"></script>
+    <script src="js/custom.js"></script>
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            cargarFragmento("menu", "menu.html");
+            cargarFragmento("pie", "pie.html");
+
+            // 🛒 Obtener carrito desde localStorage
+    const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+
+    // 💰 Calcular el total
+    let total = 0;
+    carrito.forEach(item => {
+      total += item.precio; // Asegúrate de que cada producto tenga la propiedad "precio"
+    });
+
+    // 💵 Mostrar el total formateado
+    document.getElementById("montoTotal").textContent = 
+      "$" + total.toLocaleString("es-CO");
+  });
+    </script>
+    <!-- Fin de los Script -->
+</body>
+
+</html>

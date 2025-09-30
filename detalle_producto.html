@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <title>Entre Sabanas textil para tu hogar</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="apple-touch-icon" href="images/apple-icon.png">
+    <link rel="shortcut icon" type="images/x-icon" href="assets/img/favicon.ico">
+
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/templatemo.css">
+    <link rel="stylesheet" href="css/custom.css">
+
+    <!-- Carga los estilos de la letra -->
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;200;300;400;500;700;900&display=swap">
+    <link rel="stylesheet" href="css/fontawesome.min.css">
+    <script src="database/datos.js"></script>
+    <script src="database/consultas.js"></script>
+
+</head>
+
+<body>
+    <!-- Contenedor para cargar la barra de menú usando JavaScript -->
+    <div id="menu"></div>
+    <!-- Contenido de la página - Inicio -->
+
+    <section id="etiqueta_detalle_producto" class="bg-light">
+        <div class="container pb-5">
+            <div class="row">
+                <div class="col-lg-5 mt-5">
+                    <div class="card mb-3">
+                        <img class="card-img img-fluid" src="assets/img/product_single_10.jpg" alt="Card image cap"
+                            id="product-detail">
+                    </div>
+                    <div class="row">
+
+                    </div>
+                </div>
+                <!-- col end -->
+                <div class="col-lg-7 mt-5">
+                    <div class="card">
+                        <div class="card-body">
+                            <h1 class="h2" id="nombre-producto">Active Wear</h1>
+                            <p class="h3 py-2" id="precio">$25.00</p>
+                            <p class="py-2" id="calificacion-producto">
+                                <i class="fa fa-star text-warning"></i>
+                                <i class="fa fa-star text-warning"></i>
+                                <i class="fa fa-star text-warning"></i>
+                                <i class="fa fa-star text-warning"></i>
+                                <i class="fa fa-star text-secondary"></i>
+                            </p>
+                            <ul class="list-inline">
+                                <li class="list-inline-item">
+                                    <h6>Brand:</h6>
+                                </li>
+                                <li class="list-inline-item">
+                                    <p class="text-muted" id="marca"><strong>Easy Wear</strong></p>
+                                </li>
+                            </ul>
+
+                            <h6>Descripcion:</h6>
+                            <p id="descripcion_producto">
+                                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod temp incididunt
+                                ut labore et dolore magna aliqua. Quis ipsum suspendisse. Donec condimentum elementum
+                                convallis. Nunc sed orci a diam ultrices aliquet interdum quis nulla.
+                            </p>
+
+                            <h6>Especificacion:</h6>
+                            <ul class="list-unstyled pb-3" id="especificacion_producto">
+                                <!-- se generan segun la especificacion del producto dada en datos.js -->
+                            </ul>
+
+                            <form action="" method="GET">
+                                <input type="hidden" name="product-title" value="Activewear">
+                                <div class="row">
+                                    <div class="col-auto">
+                                        <ul class="list-inline pb-3">
+                                            <li class="list-inline-item" id="medida">Medida :
+                                         
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="row pb-3">
+                                    <div class="col d-grid">
+                                        <button type="button" class="btn btn-success btn-lg"
+                                           id="boton-agregar" >Agregar al carrito</button>
+                                        
+                                    </div>
+                                    <div class="col d-grid">
+                                        <button type="button" class="btn btn-success btn-lg" onclick="window.history.back()">Regresar</button>
+                                    </div>
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Obtener el parámetro de la URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const codigo_producto = urlParams.get('codigo_producto');
+        //Buscar el producto por su código
+        const producto = obtenerProductoServicioPorCodigo(codigo_producto);
+        let prodcuto = obtenerProductoServicioPorCodigo(codigo_producto);
+        if (producto) {
+            document.getElementById("nombre-producto").innerText = producto.nombre;
+            document.getElementById("descripcion_producto").innerText = producto.descripcion;
+            document.getElementById("precio").innerText = producto.precio.toLocaleString("es-CO");
+            document.getElementById("product-detail").src = producto.imagen;
+            document.getElementById("boton-agregar").addEventListener("click", function (event) {
+            event.preventDefault(); // Evita el envío del formulario
+            agregarProductoServicio(producto, false);
+             localStorage.setItem("carrito", JSON.stringify(carrito));
+            alert("Producto agregado al carrito");
+            window.history.back(); // Regresa a la página anterior
+        });
+            document.getElementById("marca").innerText = producto.marca;
+            const contenedorEspecificacion = document.getElementById("especificacion_producto");
+            let especificacionHTML = `<li>${producto.especificacion.join("</li><li>")}</li>`;
+            const contenedorMedida = document.getElementById("medida");
+            let medidasHTML = `Medida : <input type="hidden" name="product-size" id="product-size" value="${producto.medida[0]}">`; // Se toma la primera medida como valor inicial
+
+            // Generar los botones dinámicamente
+            producto.medida.forEach(medida => {
+                medidasHTML += `
+        <li class="list-inline-item">
+            <span class="btn btn-success btn-size" data-size="${medida}">
+                ${medida}
+            </span>
+        </li>
+    `;
+            });
+
+            // Reemplazar todo el contenido del li con id="medida"
+            contenedorMedida.innerHTML = medidasHTML;
+            document.getElementById("calificacion-producto").innerHTML = generarEstrellas(producto.calificacion);
+            let especificacion_html = "";
+            producto.especificacion.forEach(item => {
+                especificacion_html += `<li>${item}</li>`;
+            });
+            document.getElementById("especificacion_producto").innerHTML = especificacion_html;
+        } else {
+            document.getElementById("etiqueta_detalle_producto").innerHTML = "<h2>Producto no encontrado</h2>";
+        }
+        function generarEstrellas(calificacion) {
+            let estrellas = "";
+            for (let i = 0; i < calificacion; i++) {
+                estrellas += '<i class="fa fa-star text-warning"></i>';
+            }
+            for (let i = calificacion; i < 5; i++) {
+                estrellas += '<i class="fa fa-star text-secondary"></i>';
+            }
+            return estrellas;
+        }
+        //boton agregar al carrito
+        
+    </script>
+
+    <!-- Contenido de la página - Final -->
+    <!-- Contenedor para cargar el pie de página usando JavaScript -->
+    <div id="pie"></div>
+
+    <!-- Inicio de los Script -->
+    <script src="js/jquery-1.11.0.min.js"></script>
+    <script src="js/jquery-migrate-1.2.1.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/templatemo.js"></script>
+    <script src="js/custom.js"></script>
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            cargarFragmento("menu", "menu.html");
+            cargarFragmento("pie", "pie.html");
+        });
+    </script>
+    <!-- Fin de los Script -->
+</body>
+
+</html>

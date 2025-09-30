@@ -27,13 +27,18 @@
     <!-- Contenedor para cargar la barra de menú usando JavaScript -->
     <div id="menu"></div>
     <!-- Contenido de la página - Inicio -->
-    <!-- Start Content -->
+
     <div class="container py-5">
         <div class="row">
 
-            <div class="col-lg-3">
+            <div class="col-lg-2">
                 <h1 class="h2 pb-4">Categories</h1>
                 <ul id="etiqueta_categorias" class="list-unstyled">
+                    <li class="pb-3">
+                        <a class="d-flex justify-content-between h3 text-decoration-none" href="productos.html">
+                            Mostrar todo
+                        </a>
+                    </li>
                     <!-- las categorias se generar de forma dinamica -->
                 </ul>
             </div>
@@ -51,73 +56,140 @@
                 });
             </script>
 
-            <div class="col-lg-9">
+            <div class="col-lg-7">
                 <!-- Inicio, listado de productos a la derecha de la pantalla (tamaño: large) -->
                 <div id="etiqueta_productos" class="row">
-                  <!-- los productos se generan de forma dinamica y se crean dentro de este div -->
+                    <!-- los productos se generan de forma dinamica y se crean dentro de este div -->
                 </div>
                 <!-- inicio de paginacion de productos -->
                 <div div="row">
-                    <ul class="pagination pagination-lg justify-content-end">
-                        <li class="page-item disabled">
-                            <a class="page-link active rounded-0 mr-3 shadow-sm border-top-0 border-left-0" href="#"
-                                tabindex="-1">1</a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link rounded-0 mr-3 shadow-sm border-top-0 border-left-0 text-dark"
-                                href="#">2</a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link rounded-0 shadow-sm border-top-0 border-left-0 text-dark" href="#">3</a>
-                        </li>
+                    <ul class="pagination pagination-lg justify-content-end" id="contenedor_paginacion">
+                       <!-- La paginacion se genera de forma dinamica respecto al numero de productos -->
                     </ul>
                 </div>
+                <!-- fin paginacion de productos -->
             </div>
+            <!-- carrito de compras inicio -->
+            <div class="col-lg-3 bg-light p-2">
+                <h4>Carrito de compras</h4>
+                <p> Valor Total:$<b id="etiqueta_total">0</b> </p>
+                <ul id="etiqueta_carrito" class="list-unstyled">
+                    <!-- los productos se generan de forma dinamica y se crean dentro de este div -->
+                </ul>
+                <div id="boton-vaciar" class="btn btn-danger text-decoration-none" onclick="vaciarCarrito()">Vaciar
+                    </div>
 
+                    <div class="btn btn-success text-decoration-none" id="boton-pagar">
+                        <a class="text-decoration-none btn-success text-white" href="pagar.html"
+                            target="target_blank">Pagar</a>
+                    </div>
+            </div>
+            <!-- final carrito de compras -->
         </div>
+
     </div>
 
-   <script>
-    // Obtener el parámetro de la URL
-                    const urlParams = new URLSearchParams(window.location.search);
-                    const categoria = urlParams.get('cat');
+    <script>
+        // Declaración de variables globales para paginación
+        const PRODUCTOS_POR_PAGINA = 20;
+        let pagina_actual = 1;
+        let lista_productos_filtrados = [];
+        const etiqueta_productos = document.getElementById("etiqueta_productos");
+        const contenedor_paginacion = document.getElementById("contenedor_paginacion");
+        
+        // Obtener la categoría del URL y filtrar los productos una sola vez
+        const urlParams = new URLSearchParams(window.location.search);
+        const categoria = urlParams.get('cat');
+        lista_productos_filtrados = obtenerProductosServicios(categoria); 
+        
+        // --- FUNCIONES DE PAGINACIÓN ---
+        
+        function renderizarPaginacion() {
+            // Limpiar paginación actual
+            contenedor_paginacion.innerHTML = '';
+            
+            const total_paginas = Math.ceil(lista_productos_filtrados.length / PRODUCTOS_POR_PAGINA);
+            
+            if (total_paginas <= 1) {
+                // Si solo hay una página o menos, no mostrar nada
+                return;
+            }
 
-    let etiqueta_productos = document.getElementById("etiqueta_productos");
-    let productos_filtados = obtenerProductosServicios(categoria);
-    productos_filtados.forEach(producto => {
-        let div_col = document.createElement("div");
-        div_col.classList.add("col-md-4");
-        div_col.innerHTML = `
-            <div class="card mb-4 product-wap rounded-0">
-                <div class="card rounded-0">
-                    <img class="card-img rounded-0 img-fluid" src="${producto.imagen}">
-                    <div class="card-img-overlay rounded-0 product-overlay d-flex align-items-center justify-content-center">
-                        <ul class="list-unstyled">
-                            <li><a class="btn btn-success text-white" href="shop-single.html"><i class="far fa-heart"></i></a></li>
-                            <li><a class="btn btn-success text-white mt-2" href="shop-single.html"><i class="far fa-eye"></i></a></li>
-                            <li><a class="btn btn-success text-white mt-2" href="shop-single.html"><i class="fas fa-cart-plus"></i></a></li>
-                        </ul>
+            // Generar botones de paginación
+            for (let i = 1; i <= total_paginas; i++) {
+                const li = document.createElement("li");
+                li.classList.add("page-item");
+                if (i === pagina_actual) {
+                    li.classList.add("active");
+                }
+
+                const a = document.createElement("a");
+                a.classList.add("page-link", "rounded-0", "mr-3", "shadow-sm", "border-top-0", "border-left-0", "text-dark");
+                a.textContent = i;
+                a.href = "#"; // Evita navegación real
+                
+                // Asignar el evento click para cambiar de página
+                a.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    mostrarProductos(i);
+                });
+
+                li.appendChild(a);
+                contenedor_paginacion.appendChild(li);
+            }
+        }
+        
+        function mostrarProductos(numPagina = 1) {
+            pagina_actual = numPagina;
+            etiqueta_productos.innerHTML = ''; // Limpia los productos actuales
+            
+            const inicio = (numPagina - 1) * PRODUCTOS_POR_PAGINA;
+            const fin = inicio + PRODUCTOS_POR_PAGINA;
+            
+            const productos_a_mostrar = lista_productos_filtrados.slice(inicio, fin);
+
+            productos_a_mostrar.forEach(producto => {
+                let div_col = document.createElement("div");
+                div_col.classList.add("col-md-4");
+                // Tu plantilla de producto va aquí
+                div_col.innerHTML = `
+                <div class="card mb-4 product-wap rounded-0">
+                    <div class="card rounded-0">
+                        <img class="card-img rounded-0 img-fluid" src="${producto.imagen}">
+                        <div class="card-img-overlay rounded-0 product-overlay d-flex align-items-center justify-content-center">
+                            <ul class="list-unstyled">
+                                <li><a class="btn btn-success text-white mt-2" href="detalle_producto.html?codigo_producto=${producto.codigo}"><i class="far fa-eye"></i></a></li>
+                                <li><a class="btn btn-success text-white mt-2 btn-add"><i class="fas fa-cart-plus"></i></a></li>
+                            </ul>
+                        </div>
                     </div>
-                </div>
-                <div class="card-body">
-                    <a href="shop-single.html" class="h3 text-decoration-none">${producto.nombre}</a>
-                    <ul class="w-100 list-unstyled d-flex justify-content-between mb-0">
-                        <li>Descripcion: ${producto.descripcion}</li>
-                    </ul>
-                    <ul class="list-unstyled d-flex justify-content-center mb-1">
-                        <li>
-                            ${'<i class="text-warning fa fa-star"></i>'.repeat(producto.calificacion)}
-                            ${'<i class="text-muted fa fa-star"></i>'.repeat(5 - producto.calificacion)}
-                        </li>
-                    </ul>
-                    <p class="text-center mb-0">$${producto.precio.toLocaleString("es-CO")}</p>
-                </div>
-            </div>`;
-        etiqueta_productos.appendChild(div_col);
-    });
-</script>
-    
-    <!-- End Content -->
+                    <div class="card-body">
+                        <a href="shop-single.html" class="h3 text-decoration-none">${producto.nombre}</a>
+                        <ul class="list-unstyled d-flex justify-content-center mb-1">
+                            <li>
+                                ${'<i class="text-warning fa fa-star"></i>'.repeat(producto.calificacion)}
+                                ${'<i class="text-muted fa fa-star"></i>'.repeat(5 - producto.calificacion)}
+                            </li>
+                        </ul>
+                        <p class="text-center mb-0">$${producto.precio.toLocaleString("es-CO")}</p>
+                    </div>
+                </div>`;
+                etiqueta_productos.appendChild(div_col);
+
+                // Agregar listener para el carrito
+                div_col.querySelector(".btn-add").addEventListener("click", (event) => {
+                    agregarProductoServicio(producto); // Asume que esta función existe en consultas.js
+                });
+            });
+            
+            // Renderiza los nuevos botones después de mostrar los productos
+            renderizarPaginacion();
+        }
+
+        // 3. Ejecución inicial: Muestra la primera página al cargar
+        mostrarProductos(1);
+
+    </script>
     <!-- Contenido de la página - Final -->
     <!-- Contenedor para cargar el pie de página usando JavaScript -->
     <div id="pie"></div>
@@ -134,6 +206,8 @@
         document.addEventListener("DOMContentLoaded", () => {
             cargarFragmento("menu", "menu.html");
             cargarFragmento("pie", "pie.html");
+
+             mostrarCarrito();
         });
     </script>
     <!-- Fin de los Script -->

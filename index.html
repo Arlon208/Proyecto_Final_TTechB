@@ -108,7 +108,7 @@
                 <a href="#"><img src="${categoria.imagen}" class="rounded-circle img-fluid border"></a>
                 <h5 class="text-center mt-3 mb-3">${categoria.nombre}</h5>
                 <p class="text-center">${categoria.descripcion}</p>
-                <p class="text-center"><a class="btn btn-success">Comprar</a></p>
+                <p class="text-center"><a class="btn btn-success" href="productos.html?cat=${categoria.codigo}">Comprar</a></p>
             `;
             etiqueta_categorias.appendChild(div);
         });

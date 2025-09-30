@@ -3,3 +3,23 @@
     height: 400px;
     object-fit: cover;
 }
+
+/* 1. Establecer una altura fija para el CONTENEDOR de la imagen */
+.product-wap .card > .card { /* Esto apunta al <div> que contiene la imagen y el overlay */
+    height: 200px; /* <--- AJUSTA ESTA ALTURA a la que mejor se vea para tus productos */
+    overflow: hidden; /* Muy importante para recortar lo que se sale del área */
+}
+
+/* 2. Aplicar el ajuste de objeto a la IMAGEN */
+.product-wap .card-img {
+    width: 100%;        /* Asegura que la imagen ocupe todo el ancho */
+    height: 100%;       /* Asegura que la imagen ocupe toda la altura del contenedor (300px) */
+    object-fit: cover;  /* **CLAVE:** Escala la imagen para cubrir completamente el contenedor. Recortará los bordes si es necesario, ¡pero garantiza que no haya espacios en blanco ni distorsión! */
+}
+
+/* 2. ESTILO PARA EL CARD COMPLETO */
+.product-wap {
+    height: 400px; /* **Altura total fija para cada card (Ajusta según tu diseño)** */
+    display: flex;
+    flex-direction: column; /* Asegura que el contenido se apile correctamente */
+}
